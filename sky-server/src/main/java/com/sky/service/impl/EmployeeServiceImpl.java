@@ -20,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -68,11 +69,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public void save(EmployeeDTO empolyeeDTO) {
+    public void save(EmployeeDTO employeeDTO) {
         // 将对象转换为对应实体
         Employee employee = new Employee();
         // 对象属性拷贝
-        BeanUtils.copyProperties(empolyeeDTO, employee);
+        BeanUtils.copyProperties(employeeDTO, employee);
         // 设置对象其他状态
         employee.setStatus(StatusConstant.ENABLE);
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
@@ -119,6 +120,36 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .status(status)
                 .id(id)
                 .build();
+        employeeMapper.update(employee);
+    }
+
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    @Override
+    public Employee selectById(Long id) {
+        Employee employee = Employee.builder()
+                .id(id)
+                .build();
+        Employee employee1 =  employeeMapper.selectById(employee);
+        employee1.setPassword("****");
+        return employee1;
+    }
+
+
+    /**
+     * 修改员工信息
+     * @param employeeDTO
+     */
+    @Override
+    public void update(EmployeeDTO employeeDTO) {
+        // 将其转换为employee对象形式
+        Employee employee = new Employee();
+        // 对象属性拷贝
+        BeanUtils.copyProperties(employeeDTO, employee);
         employeeMapper.update(employee);
     }
 
