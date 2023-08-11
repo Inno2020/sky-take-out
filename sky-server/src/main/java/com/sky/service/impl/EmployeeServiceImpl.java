@@ -75,7 +75,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         BeanUtils.copyProperties(empolyeeDTO, employee);
         // 设置对象其他状态
         employee.setStatus(StatusConstant.ENABLE);
-        employee.setPassword(PasswordConstant.DEFAULT_PASSWORD);
+        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
         employee.setCreateTime(LocalDateTime.now());
         employee.setUpdateTime(LocalDateTime.now());
         // 通过ThreadLocal方式保存并获得当前修改的用户
@@ -104,6 +104,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         pageResult.setTotal(total);
         pageResult.setRecords(records);
         return pageResult;
+    }
+
+    /**
+     * 启用禁用员工账号
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        // 根据id更新对应状态 update employee set status = ? where id = ?
+
+        Employee employee = Employee.builder()
+                .status(status)
+                .id(id)
+                .build();
+        employeeMapper.update(employee);
     }
 
 }
