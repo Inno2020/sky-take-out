@@ -8,6 +8,8 @@ import com.sky.entity.Category;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
 import java.util.List;
 
 @Mapper
@@ -51,5 +53,11 @@ public interface CategoryMapper {
      */
     List<Category> list(Integer type);
 
-    String getById(Long categoryId);
+    /**
+     * 根据categroy_id查询categroyName
+     * @param id
+     * @return
+     */
+    @Select("select name from category where id = #{id}")
+    String getNameByDishId(Long id);
 }
