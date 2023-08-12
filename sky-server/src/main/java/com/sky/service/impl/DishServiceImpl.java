@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Constant;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -18,6 +19,7 @@ import com.sky.result.Result;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.apache.bcel.classfile.ConstantMethodHandle;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -155,6 +157,20 @@ public class DishServiceImpl implements DishService {
             });
             dishFlavorMapper.insertBatch(flavors);
         }
+    }
+
+    /**
+     * 根据类别查询菜品
+     * @param categroyId
+     * @return
+     */
+    @Override
+    public List<Dish> list(Long categroyId) {
+        Dish dish = Dish.builder()
+                .categoryId(categroyId)
+                .status(StatusConstant.ENABLE)
+                .build();
+        return dishMapper.list(dish);
     }
 
 

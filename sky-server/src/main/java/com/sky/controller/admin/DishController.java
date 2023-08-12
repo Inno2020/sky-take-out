@@ -95,4 +95,15 @@ public class DishController {
         return Result.success();
     }
 
+    /**
+     * 根据类别查询菜品
+     * @param categroyId
+     * @return
+     */
+    @GetMapping("/list")
+    @ApiOperation("根据类别查询菜品")
+    public Result<List<Dish>> list(Long categroyId) {
+        List<Dish> list = dishService.list(categroyId);
+        return Result.success(list);
+    }
 }
