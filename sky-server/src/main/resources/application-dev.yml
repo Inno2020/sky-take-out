@@ -11,3 +11,8 @@ sky:
     access-key-id: LTAI5tK9nQGHxPzfrRxur227
     access-key-secret: S3P5N1UDuCavPy8KluVSIo5iGep1Hx
     bucket-name: inno-takeout
+  redis:
+    host: localhost
+    port: 6379
+    password: 471520
+    database: 0
