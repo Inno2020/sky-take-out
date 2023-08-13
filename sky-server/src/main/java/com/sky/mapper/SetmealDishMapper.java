@@ -2,10 +2,12 @@ package com.sky.mapper;
 
 import com.sky.annotation.AutoFill;
 import com.sky.dto.SetmealDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.enumeration.OperationType;
 import io.swagger.annotations.Api;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -36,4 +38,19 @@ public interface SetmealDishMapper {
      */
     @Select("select name from category where id = #{id}")
     String getCategroyById(Long id);
+
+    /**
+     * 根据setmealid查询dish
+     * @param setmeal
+     * @return
+     */
+    @Select("select a.* from dish a left join setmeal_dish b on a.id = b.dish_id where b.setmeal_id = #{id}")
+    List<Dish> getBySetmealId(Setmeal setmeal);
+
+    /**
+     * 删除setmeal_dish表中数据
+     * @param id
+     */
+    @Delete("delete from setmeal_dish where setmeal_id = #{id}")
+    void deleteBySetmealId(Long id);
 }

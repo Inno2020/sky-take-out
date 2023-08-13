@@ -2,12 +2,15 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Employee;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
@@ -45,7 +48,7 @@ public class SetmealServiceImpl implements SetmealService {
         setmealMapper.save(setmeal);
 
         //获取生成的套餐id
-        Long setmealId = setmealDTO.getCategoryId();
+        Long setmealId = setmealDTO.getId();
 
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
         setmealDishes.forEach(setmealDish -> {
@@ -101,7 +104,7 @@ public class SetmealServiceImpl implements SetmealService {
         // 更新setmeal表中的数据
         setmealMapper.update(setmeal);
         // 更新setmeal_dish表中的数据
-        Long setmealId = setmealDTO.getCategoryId();
+        Long setmealId = setmealDTO.getId();
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
         setmealDishes.forEach(setmealDish -> {
             setmealDish.setSetmealId(setmealId);
@@ -109,5 +112,58 @@ public class SetmealServiceImpl implements SetmealService {
 
         //保存套餐和菜品的关联关系
         setmealDishMapper.insertBatch(setmealDishes);
+    }
+
+    /**
+     * 批量删除套惨
+     * @param ids
+     */
+    @Override
+    @Transactional
+    public void deleteByIds(List<Long> ids) {
+        // 删除套餐前先判断是否有套餐是否正在起售，起售则不能删除
+        for(Long id : ids) {
+            // 根据id查询是否起售
+            Setmeal setmeal = new Setmeal();
+            setmeal = setmealMapper.getById(id);
+            if(setmeal.getStatus() == StatusConstant.DISABLE) {
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        }
+        for(Long id : ids) {
+            // 删除setmeal表中数据
+            setmealMapper.deleteById(id);
+            // 删除setmeal_dish表中数据
+            setmealDishMapper.deleteBySetmealId(id);
+        }
+    }
+
+
+    /**
+     * 套餐起售、停售
+     * @param status
+     */
+    @Override
+    public void changeStatus(Integer status, Long id) {
+        // 将其封装为setmeal对象
+        Setmeal setmeal = Setmeal.builder()
+                .status(status)
+                .id(id)
+                .build();
+        // 如果要切换为起售状态，判断其套餐内是否包含停售的菜品，如果存在则不能起售
+        if(status == StatusConstant.ENABLE) {
+            // 判断是否存在停售的菜品，根据id进行查询
+            List<Dish> list = setmealDishMapper.getBySetmealId(setmeal);
+            // 遍历list判断是否有状态为禁售的菜品
+            if(list != null && list.size() > 0) {
+                list.forEach(dish -> {
+                    if(StatusConstant.ENABLE == dish.getStatus()) {
+                        throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+                    }
+                });
+            }
+
+        }
+        setmealMapper.changeStatus(setmeal);
     }
 }

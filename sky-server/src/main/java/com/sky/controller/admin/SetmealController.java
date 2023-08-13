@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/setmeal")
 @Slf4j
@@ -58,10 +60,37 @@ public class SetmealController {
         return Result.success(setmealService.getById(id));
     }
 
+    /**
+     * 修改套餐信息
+     * @param setmealDTO
+     * @return
+     */
     @PutMapping
     @ApiOperation("修改套餐信息")
     public Result update(@RequestBody SetmealDTO setmealDTO) {
         setmealService.update(setmealDTO);
+        return Result.success();
+    }
+
+
+
+    @PostMapping("/status/{status}")
+    public Result changeStatus(@PathVariable Integer status,Long id) {
+        log.info("套餐起售、停售：{},{}", status, id);
+        setmealService.changeStatus(status, id);
+        return Result.success();
+    }
+
+    /**
+     * 批量删除套餐
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    @ApiOperation("批量删除套餐")
+    public Result deleteByIds(@RequestParam List<Long> ids) {
+        log.info("批量删除套餐：{}", ids);
+        setmealService.deleteByIds(ids);
         return Result.success();
     }
 }
