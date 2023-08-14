@@ -102,12 +102,13 @@ public class DishServiceImpl implements DishService {
                 // 不能处理
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
+            // 判断菜品是否被套餐关联
+            List<Long> list = setmealDishMapper.getSetmealIdsByDishIds(id);
+            if(list != null && list.size() != 0) {
+                throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
+            }
         }
-        // 判断菜品是否被套餐关联
-        List<Long> list = setmealDishMapper.getSetmealIdsByDishIds(ids);
-        if(list != null && list.size() != 0) {
-            throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
-        }
+
         // 删除菜品与口味数据
         for(long id : ids) {
             dishMapper.deleteById(id);
@@ -196,6 +197,15 @@ public class DishServiceImpl implements DishService {
         }
 
         return dishVOList;
+    }
+
+    /**
+     * 菜品起售停售
+     * @param dish
+     */
+    @Override
+    public void changeStatus(Dish dish) {
+        dishMapper.changeStatus(dish);
     }
 
 

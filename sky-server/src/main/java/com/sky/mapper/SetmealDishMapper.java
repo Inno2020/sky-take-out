@@ -19,10 +19,10 @@ public interface SetmealDishMapper {
 
     /**
      * 根据id查询套餐id
-     * @param dishIds
+     * @param id
      * @return
      */
-    List<Long> getSetmealIdsByDishIds(List<Long> dishIds);
+    List<Long> getSetmealIdsByDishIds(Long id);
 
     /**
      * 批量插入菜品
@@ -37,7 +37,7 @@ public interface SetmealDishMapper {
      * @return
      */
     @Select("select name from category where id = #{id}")
-    String getCategroyById(Long id);
+    String getCategoryById(Long id);
 
     /**
      * 根据setmealid查询dish

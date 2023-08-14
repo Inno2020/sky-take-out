@@ -41,18 +41,18 @@ public class SetmealServiceImpl implements SetmealService {
     @Transactional
     public void save(SetmealDTO setmealDTO) {
         // 向setmeal表中添加数据
-        // TODO 如何将status插入
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);
         setmeal.builder().status(StatusConstant.ENABLE).build();
         setmealMapper.save(setmeal);
 
         //获取生成的套餐id
-        Long setmealId = setmealDTO.getId();
+        Long setmealId = setmeal.getId();
 
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
         setmealDishes.forEach(setmealDish -> {
             setmealDish.setSetmealId(setmealId);
+            System.out.println(setmealDish.getSetmealId());
         });
 
         //保存套餐和菜品的关联关系
@@ -86,7 +86,7 @@ public class SetmealServiceImpl implements SetmealService {
         Setmeal setmeal = setmealMapper.getById(id);
         BeanUtils.copyProperties(setmeal, setmealVO);
         // 获得套餐类别信息
-        String categroy = setmealDishMapper.getCategroyById(setmeal.getCategoryId());
+        String categroy = setmealDishMapper.getCategoryById(setmeal.getCategoryId());
         setmealVO.setCategoryName(categroy);
         return setmealVO;
     }
@@ -126,7 +126,7 @@ public class SetmealServiceImpl implements SetmealService {
             // 根据id查询是否起售
             Setmeal setmeal = new Setmeal();
             setmeal = setmealMapper.getById(id);
-            if(setmeal.getStatus() == StatusConstant.DISABLE) {
+            if(setmeal.getStatus() == StatusConstant.ENABLE) {
                 throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
             }
         }
@@ -157,7 +157,7 @@ public class SetmealServiceImpl implements SetmealService {
             // 遍历list判断是否有状态为禁售的菜品
             if(list != null && list.size() > 0) {
                 list.forEach(dish -> {
-                    if(StatusConstant.ENABLE == dish.getStatus()) {
+                    if(StatusConstant.DISABLE == dish.getStatus()) {
                         throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ENABLE_FAILED);
                     }
                 });
